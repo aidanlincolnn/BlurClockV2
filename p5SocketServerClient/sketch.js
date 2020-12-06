@@ -31,8 +31,12 @@ function setup() {
 	button4.mousePressed(moveMotorBackward);
 
 	button5 = createButton('start blur clock');
-  	button5.position(button4.x+140, button4.y);
+  	button5.position(button4.x+160, button4.y);
 	button5.mousePressed(startBlurClock);
+
+	button6 = createButton('end blur clock');
+  	button6.position(button5.x+110, button5.y);
+	button6.mousePressed(endBlurClock);
 
 
 	message = createElement('h2', 'Enter A Zip Code');
@@ -79,6 +83,11 @@ function moveMotorBackward(){
 function startBlurClock(){
 	console.log('start blur clock');
 	socket.emit('startBlurClock');
+}
+
+function endBlurClock(){
+	console.log('end blur clock');
+	socket.emit('endBlurClock');
 }
 
 function showAPIData(data){

@@ -10,6 +10,7 @@ const io = require('socket.io')(serv);
 var kill  = require('tree-kill');
 const {spawn} = require('child_process');
 var clock;
+var blurClock;
 
 //global variables because I hate javascript and dont have time to do properly 
 var requestZip = '';
@@ -126,6 +127,14 @@ io.on('connection', function (socket) {
       blurClock.on("close", code => {
         console.log(`exit blur clock ${code}`);
       });
+    }
+
+    socket.on('endBlurClock', endBlurClock);
+
+    async function endBlurClock(){
+      if(blurClock != null && blurClock.pid != null){
+        kill(blurClock.pid);
+      }
     }
 });
 
