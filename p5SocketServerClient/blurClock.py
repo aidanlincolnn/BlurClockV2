@@ -12,7 +12,7 @@ from time import sleep
 STEP_PIN = 25
 DIRECTION_PIN = 19
 #instantiate subprocess for running rgb matrix program from python
-clockSubprocess = subprocess.Popen(['sudo','/home/aidan/rgbMatrix/rpi-rgb-led-matrix/examples-api-use/clock','--led-slowdown-gpio=4','--led-gpio-mapping=adafruit-hat-pwm','--led-rows=32','--led-cols=64','--led-brightness=100', '-f','/home/aidan/rgbMatrix/rpi-rgb-led-matrix/fonts/8x13.bdf','-d','%I:%M:%S','-y','10','-C','255,255,255'])
+clockSubprocess = subprocess.Popen(['/home/aidan/rgbMatrix/rpi-rgb-led-matrix/examples-api-use/clock','--led-no-hardware-pulse','--led-slowdown-gpio=4','--led-gpio-mapping=adafruit-hat-pwm','--led-rows=32','--led-cols=64','--led-brightness=100', '-f','/home/aidan/rgbMatrix/rpi-rgb-led-matrix/fonts/8x13.bdf','-d','%I:%M:%S','-y','10','-C','255,255,255'])
 
 class StepperHandler():
 

@@ -17,7 +17,6 @@ var cityInfo = '';
 var responseSunRise = '';
 var responseSunSet= '';
 
-
 console.log('server listening on port 8080');
 //app runs on 8080
 serv.listen(8080);
@@ -53,7 +52,7 @@ io.on('connection', function (socket) {
 
     async function runClock(){
       console.log('running clock');
-      clock = spawn("sudo",["/home/aidan/rgbMatrix/rpi-rgb-led-matrix/examples-api-use/clock","--led-slowdown-gpio=4","--led-gpio-mapping=adafruit-hat-pwm","=-led-rows=32","--led-cols=64","--led-brightness=100","-f","/home/aidan/rgbMatrix/rpi-rgb-led-matrix/fonts/8x13.bdf","-d","%I:%M:%S","-y","10","-C","255,255,255"]);      
+      clock = spawn("/home/aidan/rgbMatrix/rpi-rgb-led-matrix/examples-api-use/clock",["--led-no-hardware-pulse","--led-slowdown-gpio=4","--led-gpio-mapping=adafruit-hat-pwm","=-led-rows=32","--led-cols=64","--led-brightness=100","-f","/home/aidan/rgbMatrix/rpi-rgb-led-matrix/fonts/8x13.bdf","-d","%I:%M:%S","-y","10","-C","255,255,255"]);      
       clock.on('error', (error) => {
         console.log(`error: ${error.message}`);
       });
@@ -69,9 +68,7 @@ io.on('connection', function (socket) {
       console.log('trying to kill clock by pid');
       if(clock.pid != null){
         console.log('killing clock:');
-        console.log(clock.pid)
-        //need to do it this insane way by calling another program to avoid running program from sudo which doesnt work with open cv
-        killClock = spawn("sudo", ["python3","./turnOffScreen.py", clock.pid.toString()]);
+        kill(clock.pid);
       }
     }
 
@@ -95,7 +92,6 @@ io.on('connection', function (socket) {
 
     async function moveMotorBackward(){
       console.log('move motor backwards');
-
       moveMotor = spawn("python3", ["./moveMotor.py", "0"]);
       
       moveMotor.on('error', (error) => {
