@@ -7,14 +7,19 @@ const app = express();
 const serv = require('http').Server(app);
 const io = require('socket.io')(serv);
 
+var kill  = require('tree-kill');
+const {spawn} = require('child_process');
+var clock;
+
 //global variables because I hate javascript and dont have time to do properly 
 var requestZip = '';
 var cityInfo = '';
 var responseSunRise = '';
 var responseSunSet= '';
 
-//app runs on 8001
-serv.listen(8001);
+console.log('server listening on port 8080');
+//app runs on 8080
+serv.listen(8080);
 //this makes p5 work and get sent back to localhost
 app.use(express.static(__dirname));
 //send back index when we localhost 
@@ -26,6 +31,7 @@ app.get('/',(req , res)=>{
 //when socket is connection, do stuff
 io.on('connection', function (socket) {
     console.log('connection made');
+
     socket.on('getZipData', getZipData);
 
     async function getZipData(data){
@@ -40,6 +46,37 @@ io.on('connection', function (socket) {
         }
         console.log('sending dat back '+dataOut);
         socket.emit('zipResult',dataOut);
+    }
+
+    socket.on('runClock', runClock);
+
+    async function runClock(){
+      clock = spawn("bash", ["/home/aidan/runClock.sh"]);
+      clock.stdout.on("data", data => {
+        console.log(`stdout: ${data}`);
+      });
+      
+      clock.stderr.on("data", data => {
+        console.log(`stderr: ${data}`);
+      });
+      
+      clock.on('error', (error) => {
+        console.log(`error: ${error.message}`);
+      });
+    
+      clock.on("close", code => {
+        console.log(`child process exited with code ${code}`);
+      });
+    }
+
+    socket.on('killClock', killClock);
+    
+    async function killClock(){
+      console.log('trying to kill clock by pid');
+      if(clock.pid != null){
+        console.log('trying to kil clock pid:'+clock.pid);
+        kill(clock.pid);
+      }
     }
 });
 
