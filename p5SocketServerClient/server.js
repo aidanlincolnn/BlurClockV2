@@ -17,6 +17,7 @@ var cityInfo = '';
 var responseSunRise = '';
 var responseSunSet= '';
 
+
 console.log('server listening on port 8080');
 //app runs on 8080
 serv.listen(8080);
@@ -51,21 +52,14 @@ io.on('connection', function (socket) {
     socket.on('runClock', runClock);
 
     async function runClock(){
-      clock = spawn("bash", ["/home/aidan/runClock.sh"]);
-      clock.stdout.on("data", data => {
-        console.log(`stdout: ${data}`);
-      });
-      
-      clock.stderr.on("data", data => {
-        console.log(`stderr: ${data}`);
-      });
-      
+      console.log('running clock');
+      clock = spawn("sudo",["/home/aidan/rgbMatrix/rpi-rgb-led-matrix/examples-api-use/clock","--led-slowdown-gpio=4","--led-gpio-mapping=adafruit-hat-pwm","=-led-rows=32","--led-cols=64","--led-brightness=100","-f","/home/aidan/rgbMatrix/rpi-rgb-led-matrix/fonts/8x13.bdf","-d","%I:%M:%S","-y","10","-C","255,255,255"]);      
       clock.on('error', (error) => {
         console.log(`error: ${error.message}`);
       });
     
       clock.on("close", code => {
-        console.log(`child process exited with code ${code}`);
+        console.log(`clock closed ${code}`);
       });
     }
 
@@ -74,9 +68,68 @@ io.on('connection', function (socket) {
     async function killClock(){
       console.log('trying to kill clock by pid');
       if(clock.pid != null){
-        console.log('trying to kil clock pid:'+clock.pid);
+        console.log('killing clock:');
+        console.log(clock.pid)
+        //need to do it this insane way by calling another program to avoid running program from sudo which doesnt work with open cv
+        killClock = spawn("sudo", ["python3","./turnOffScreen.py", clock.pid.toString()]);
+      }
+    }
+
+    socket.on('moveMotorForward', moveMotorForward);
+
+    async function moveMotorForward(){
+      console.log('move motor forward');
+      moveMotor = spawn("python3", ["./moveMotor.py", "1"]);
+      
+      
+      moveMotor.on('error', (error) => {
+        console.log(`error: ${error.message}`);
+      });
+    
+      moveMotor.on("close", code => {
+        console.log(`done moving forward ${code}`);
+      });
+    }
+
+    socket.on('moveMotorBackward', moveMotorBackward);
+
+    async function moveMotorBackward(){
+      console.log('move motor backwards');
+
+      moveMotor = spawn("python3", ["./moveMotor.py", "0"]);
+      
+      moveMotor.on('error', (error) => {
+        console.log(`error: ${error.message}`);
+      });
+    
+      moveMotor.on("close", code => {
+        console.log(`done moving backwards ${code}`);
+      });
+    }
+
+    socket.on('startBlurClock', startBlurClock);
+
+    async function startBlurClock(){
+      //turn off the clock program if it was running during calibration
+      if(clock != null && clock.pid != null){
         kill(clock.pid);
       }
+      console.log('starting blur clock');
+      blurClock = spawn("python3", ["./blurClock.py"]);
+      blurClock.stdout.on("data", data => {
+        console.log(`stdout: ${data}`);
+      });
+      
+      blurClock.stderr.on("data", data => {
+        console.log(`stderr: ${data}`);
+      });
+      blurClock.on('error', (error) => {
+        console.log(`error: ${error.message}`);
+      });
+    
+      blurClock.on("close", code => {
+        console.log(`exit blur clock ${code}`);
+      });
     }
 });
 

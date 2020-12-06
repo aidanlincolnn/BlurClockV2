@@ -22,6 +22,18 @@ function setup() {
   	button2.position(button1.x + 75, button1.y);
 	button2.mousePressed(killClockRequest);
 
+	button3 = createButton('move motor forward');
+  	button3.position(button2.x + 75, button2.y);
+	button3.mousePressed(moveMotorForward);
+
+	button4 = createButton('move motor backward');
+  	button4.position(button3.x+140, button3.y);
+	button4.mousePressed(moveMotorBackward);
+
+	button5 = createButton('start blur clock');
+  	button5.position(button4.x+140, button4.y);
+	button5.mousePressed(startBlurClock);
+
 
 	message = createElement('h2', 'Enter A Zip Code');
 	message.position(20, 5);
@@ -53,6 +65,20 @@ function runClockRequest(){
 function killClockRequest(){
 	console.log('turning off clock');
 	socket.emit('killClock');
+}
+
+function moveMotorForward(){
+	console.log('motor forward call');
+	socket.emit('moveMotorForward');
+}
+function moveMotorBackward(){
+	console.log('motor backwards call');
+	socket.emit('moveMotorBackward');
+}
+
+function startBlurClock(){
+	console.log('start blur clock');
+	socket.emit('startBlurClock');
 }
 
 function showAPIData(data){
